@@ -5,7 +5,6 @@
 !**.json
 !.expelimicate
 !.gitignore
-!**.pdf
 *.class
 *.log
 *.ctxt
