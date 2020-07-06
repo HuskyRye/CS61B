@@ -20,11 +20,11 @@ public class IntList {
     public static IntList squareIteratively(IntList L) {
         if (L == null)
             return L;
-        IntList start = IntList(L.first * L.first, null);
+        IntList start = new IntList(L.first * L.first, null);
         IntList last = start;
         IntList p = L.rest;
         while (p != null) {
-            last.rest = IntList(p.first * p.first, null);
+            last.rest = new IntList(p.first * p.first, null);
             last = last.rest;
             p = p.rest;
         }
