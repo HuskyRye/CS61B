@@ -1,7 +1,10 @@
-public class IntList {
+class IntList {
     int first;
     IntList rest;
-
+    public IntList(int f, IntList r) {
+        first = f;
+        rest = r;
+    }
     public static IntList square(IntList L) {
         if (L == null)
             return null;
