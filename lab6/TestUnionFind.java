@@ -3,7 +3,7 @@ import static org.junit.Assert.*;
 
 public class TestUnionFind {
     @Test
-    public void tests(){
+    public void tests() {
         UnionFind u = new UnionFind(5);
         u.union(0, 1);
         u.union(1, 2);
