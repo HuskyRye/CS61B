@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 
 public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
-    private class Node{
+    private class Node {
         private T item;
         private double priority;
         Node(T item, double priority) {

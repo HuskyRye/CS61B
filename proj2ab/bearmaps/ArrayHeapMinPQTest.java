@@ -56,13 +56,13 @@ public class ArrayHeapMinPQTest {
             pq.removeSmallest();
         }
         long end = System.currentTimeMillis();
-        System.out.println("ArrayHeapMinPQ: " + (end - start)/1000.0 +  " seconds.");
+        System.out.println("ArrayHeapMinPQ: " + (end - start) / 1000.0 +  " seconds.");
 
         start = System.currentTimeMillis();
         for (int i = 1; i <= N; ++i) {
             npq.removeSmallest();
         }
         end = System.currentTimeMillis();
-        System.out.println("NaiveMinPQ: " + (end - start)/1000.0 +  " seconds.");
+        System.out.println("NaiveMinPQ: " + (end - start) / 1000.0 +  " seconds.");
     }
 }
