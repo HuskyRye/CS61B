@@ -1,9 +1,15 @@
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 /**
  * A String-like class that allows users to add and remove characters in the String
  * in constant time and have a constant-time hash function. Used for the Rabin-Karp
  * string-matching algorithm.
  */
 class RollingString{
+    private Deque<Character> string;
+    private int hashCode;
+    private int offset;
 
     /**
      * Number of total possible int values a character can take on.
@@ -23,7 +29,19 @@ class RollingString{
      */
     public RollingString(String s, int length) {
         assert(s.length() == length);
-        /* FIX ME */
+        string = new ArrayDeque<>(length);
+        for (char c : s.toCharArray()) {
+            hashCode = hashCode * UNIQUECHARS;
+            hashCode = Math.floorMod(hashCode, PRIMEBASE);
+            hashCode = hashCode + c;
+            hashCode = Math.floorMod(hashCode, PRIMEBASE);
+            string.addLast(c);
+        }
+        offset = 1;
+        for (int i = 0; i < length - 1; ++i) {
+            offset = offset * UNIQUECHARS;
+            offset = Math.floorMod(offset, PRIMEBASE);
+        }
     }
 
     /**
@@ -32,7 +50,10 @@ class RollingString{
      * Should be a constant-time operation.
      */
     public void addChar(char c) {
-        /* FIX ME */
+        hashCode = hashCode - string.removeFirst() * offset;
+        hashCode = hashCode * UNIQUECHARS + c;
+        hashCode = Math.floorMod(hashCode, PRIMEBASE);
+        string.addLast(c);
     }
 
 
@@ -43,8 +64,10 @@ class RollingString{
      */
     public String toString() {
         StringBuilder strb = new StringBuilder();
-        /* FIX ME */
-        return "";
+        for (char c : string) {
+            strb.append(c);
+        }
+        return strb.toString();
     }
 
     /**
@@ -52,8 +75,7 @@ class RollingString{
      * Should be a constant-time operation.
      */
     public int length() {
-        /* FIX ME */
-        return -1;
+        return string.size();
     }
 
 
@@ -64,8 +86,8 @@ class RollingString{
      */
     @Override
     public boolean equals(Object o) {
-        /* FIX ME */
-        return false;
+        RollingString other = (RollingString) o;
+        return string.equals(other.string);
     }
 
     /**
@@ -74,7 +96,6 @@ class RollingString{
      */
     @Override
     public int hashCode() {
-        /* FIX ME */
-        return -1;
+        return Math.floorMod(hashCode, PRIMEBASE);
     }
 }
