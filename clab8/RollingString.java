@@ -6,7 +6,7 @@ import java.util.Deque;
  * in constant time and have a constant-time hash function. Used for the Rabin-Karp
  * string-matching algorithm.
  */
-class RollingString{
+class RollingString {
     private Deque<Character> string;
     private int hashCode;
     private int offset;
@@ -27,8 +27,8 @@ class RollingString{
      * Initializes a RollingString with a current value of String s.
      * s must be the same length as the maximum length.
      */
-    public RollingString(String s, int length) {
-        assert(s.length() == length);
+    RollingString(String s, int length) {
+        assert (s.length() == length);
         string = new ArrayDeque<>(length);
         for (char c : s.toCharArray()) {
             hashCode = hashCode * UNIQUECHARS;

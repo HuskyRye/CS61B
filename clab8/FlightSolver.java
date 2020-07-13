@@ -1,4 +1,6 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 /**
  * Solver for the Flight problem (#9) from CS 61B Spring 2018 Midterm 2.
