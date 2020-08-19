@@ -20,11 +20,20 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
     private HashMap<Point, Node> pointToNode;
     private PointSet pointSet;
 
+    private TrieSet trie;
+    private HashMap<String, Set<String>> cleanedNameToUncleanedNames;
+    private HashMap<String, List<Node>> uncleanedNameToLocations;
+
     public AugmentedStreetMapGraph(String dbPath) {
         super(dbPath);
         List<Node> nodes = this.getNodes();
         List<Point> points = new ArrayList<>();
         pointToNode = new HashMap<>();
+
+        trie = new TrieSet();
+        cleanedNameToUncleanedNames = new HashMap<>();
+        uncleanedNameToLocations = new HashMap<>();
+
         for (Node node : nodes) {
             if (neighbors(node.id()).size() != 0) {
                 Point p = new Point(node.lon(), node.lat());
@@ -32,6 +41,24 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
                 points.add(p);
             }
 
+            String uncleanedName = name(node.id());
+            if (uncleanedName != null) {
+                String cleanedName = cleanString(uncleanedName);
+                if (uncleanedName.equals("Montano Velo")) {
+                    System.out.println(cleanedName);
+                }
+                trie.add(cleanedName);
+
+                if (!cleanedNameToUncleanedNames.containsKey(cleanedName)) {
+                    cleanedNameToUncleanedNames.put(cleanedName, new HashSet<>());
+                }
+                cleanedNameToUncleanedNames.get(cleanedName).add(uncleanedName);
+
+                if (!uncleanedNameToLocations.containsKey(uncleanedName)) {
+                    uncleanedNameToLocations.put(uncleanedName, new LinkedList<>());
+                }
+                uncleanedNameToLocations.get(uncleanedName).add(node);
+            }
         }
         pointSet = new KDTree(points);
     }
@@ -59,7 +86,15 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * cleaned <code>prefix</code>.
      */
     public List<String> getLocationsByPrefix(String prefix) {
-        return new LinkedList<>();
+        List<String> cleanedNamesWithPrefix = trie.keysWithPrefix(cleanString(prefix));
+        List<String> locationsByPrefix = new LinkedList<>();
+        for (String cleanedName : cleanedNamesWithPrefix) {
+            Set<String> uncleanedNames = cleanedNameToUncleanedNames.get(cleanedName);
+            for (String uncleanedName : uncleanedNames) {
+                locationsByPrefix.add(uncleanedName);
+            }
+        }
+        return locationsByPrefix;
     }
 
     /**
@@ -76,7 +111,20 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * "id" -> Number, The id of the node. <br>
      */
     public List<Map<String, Object>> getLocations(String locationName) {
-        return new LinkedList<>();
+        Set<String> uncleanedNames = cleanedNameToUncleanedNames.get(cleanString(locationName));
+        List<Map<String, Object>> locations = new LinkedList<>();
+        for (String uncleanedName : uncleanedNames) {
+            List<Node> nodes = uncleanedNameToLocations.get(uncleanedName);
+            for (Node node : nodes) {
+                Map<String, Object> location = new HashMap<>();
+                location.put("lat", node.lat());
+                location.put("lon", node.lon());
+                location.put("name", node.name());
+                location.put("id", node.id());
+                locations.add(location);
+            }
+        }
+        return locations;
     }
 
 
