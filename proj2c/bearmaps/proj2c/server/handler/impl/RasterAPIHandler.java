@@ -84,12 +84,98 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
      */
     @Override
     public Map<String, Object> processRequest(Map<String, Double> requestParams, Response response) {
-        //System.out.println("yo, wanna know the parameters given by the web browser? They are:");
-        //System.out.println(requestParams);
+//        System.out.println("yo, wanna know the parameters given by the web browser? They are:");
+//        System.out.println(requestParams);
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
-                + "your browser.");
+        double lrlon = requestParams.get("lrlon");
+        double ullon = requestParams.get("ullon");
+        double width = requestParams.get("w");
+//        double height = requestParams.get("h");
+        double ullat = requestParams.get("ullat");
+        double lrlat = requestParams.get("lrlat");
+        if (!validate(ullon, ullat, lrlon, lrlat)) {
+            results.put("query_success", false);
+            return results;
+        }
+
+        int depth = calcDepth(ullon, lrlon, width);
+        int shares = (int) Math.pow(2, depth);
+        double dlon = (Constants.ROOT_LRLON - Constants.ROOT_ULLON) / shares;
+        double dlat = (Constants.ROOT_LRLAT - Constants.ROOT_ULLAT) / shares;
+
+        int ulx = xIndex(ullon, shares, dlon);
+        int uly = yIndex(ullat, shares, dlat);
+        int lrx = xIndex(lrlon, shares, dlon);
+        int lry = yIndex(lrlat, shares, dlat);
+
+        int ys = lry - uly + 1;
+        int xs = lrx - ulx + 1;
+        String[][] render_grid = new String[ys][xs];
+        for (int y = 0; y < ys; ++y) {
+            for (int x = 0; x < xs; ++x) {
+                render_grid[y][x] = String.format("d%d_x%d_y%d.png", depth, ulx + x, uly + y);
+            }
+        }
+
+        double raster_ul_lon = calcLongitude(ulx, dlon);
+        double raster_ul_lat = calcLatitude(uly, dlat);
+        double raster_lr_lon = calcLongitude(lrx + 1, dlon);
+        double raster_lr_lat = calcLatitude(lry + 1, dlat);
+
+        results.put("render_grid", render_grid);
+        results.put("raster_ul_lon", raster_ul_lon);
+        results.put("raster_ul_lat", raster_ul_lat);
+        results.put("raster_lr_lon", raster_lr_lon);
+        results.put("raster_lr_lat", raster_lr_lat);
+        results.put("depth", depth);
+        results.put("query_success", true);
         return results;
+    }
+
+    private boolean validate(double ullon, double ullat, double lrlon, double lrlat) {
+        if (ullat < Constants.ROOT_LRLAT
+                || ullon > Constants.ROOT_LRLON
+                || lrlon < Constants.ROOT_ULLON
+                || lrlat > Constants.ROOT_ULLAT
+                || ullon >= lrlon || ullat <= lrlat) {
+            return false;
+        }
+        return true;
+    }
+
+    private int calcDepth(double ullon, double lrlon, double width) {
+        final double rootLDPP = (Constants.ROOT_LRLON - Constants.ROOT_ULLON) / Constants.TILE_SIZE;
+        double londDPP = (lrlon - ullon) / width;
+        int depth = (int) Math.ceil(Math.log(rootLDPP / londDPP) / Math.log(2));
+        return Math.min(depth, 7);
+    }
+
+    private int xIndex(double longitude, int shares, double dlon) {
+        if (longitude < Constants.ROOT_ULLON) {
+            return 0;
+        }
+        if (longitude > Constants.ROOT_LRLON) {
+            return shares - 1;
+        }
+        return (int) ((longitude - Constants.ROOT_ULLON) / dlon);
+    }
+
+    private int yIndex(double latitude, int shares, double dlat) {
+        if (latitude > Constants.ROOT_ULLAT) {
+            return 0;
+        }
+        if (latitude < Constants.ROOT_LRLAT) {
+            return shares - 1;
+        }
+        return (int) ((latitude - Constants.ROOT_ULLAT) / dlat);
+    }
+
+    private double calcLongitude(int x, double dlon) {
+        return Constants.ROOT_ULLON + x * dlon;
+    }
+
+    private double calcLatitude(int y, double dlat) {
+        return Constants.ROOT_ULLAT + y * dlat;
     }
 
     @Override
