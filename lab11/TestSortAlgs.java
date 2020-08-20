@@ -2,16 +2,40 @@ import edu.princeton.cs.algs4.Queue;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 public class TestSortAlgs {
 
     @Test
     public void testQuickSort() {
+        Queue<String> tas = new Queue<>();
+        tas.enqueue("returns");
+        tas.enqueue("whether");
+        tas.enqueue("a");
+        tas.enqueue("queue");
+        tas.enqueue("is");
+        tas.enqueue("sorted");
+        tas.enqueue("or");
+        tas.enqueue("not");
 
+        tas = QuickSort.quickSort(tas);
+        assertTrue(isSorted(tas));
     }
 
     @Test
     public void testMergeSort() {
+        Queue<String> tas = new Queue<>();
+        tas.enqueue("returns");
+        tas.enqueue("whether");
+        tas.enqueue("a");
+        tas.enqueue("queue");
+        tas.enqueue("is");
+        tas.enqueue("sorted");
+        tas.enqueue("or");
+        tas.enqueue("not");
 
+        tas = MergeSort.mergeSort(tas);
+        assertTrue(isSorted(tas));
     }
 
     /**
