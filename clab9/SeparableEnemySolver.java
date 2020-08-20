@@ -5,6 +5,7 @@ import java.util.*;
 public class SeparableEnemySolver {
 
     Graph g;
+    HashMap<String, Integer> labelToGroup;
 
     /**
      * Creates a SeparableEnemySolver for a file with name filename. Enemy
@@ -23,10 +24,35 @@ public class SeparableEnemySolver {
      * Returns true if input is separable, false otherwise.
      */
     public boolean isSeparable() {
-        // TODO: Fix me
-        return false;
+        Set<String> labels = g.labels();
+        labelToGroup = new HashMap<>(labels.size());
+        for (String label : labels) {
+            labelToGroup.put(label, 0);
+        }
+        for (String label : labels) {
+            if (labelToGroup.get(label) == 0) {
+                if (!dfs(label, 1)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
+    private boolean dfs(String label, int group) {
+        labelToGroup.put(label, group);
+        for (String node : g.neighbors(label)) {
+            int curr_group = labelToGroup.get(node);
+            if (curr_group == 0) {
+                if (!dfs(node, 3 - group)) {
+                    return false;
+                }
+            } else if (curr_group == group) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /* HELPERS FOR READING IN CSV FILES. */
 
